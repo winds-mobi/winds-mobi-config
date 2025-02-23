@@ -6,10 +6,11 @@ receivers:
 processors:
   attributes/environment:
     actions:
-      - key: deployment.environment
+      # https://opentelemetry.io/docs/specs/semconv/resource/deployment-environment/
+      - key: deployment.environment.name
         action: insert
         value: ${ENVIRONMENT}
-  tail_sampling/sentry:
+  tail_sampling:
     decision_wait: 10s
     num_traces: 10000
     expected_new_traces_per_sec: 10
@@ -22,27 +23,6 @@ processors:
         type: latency
         latency:
           threshold_ms: 2000
-      - name: randomized-policy
-        type: probabilistic
-        probabilistic:
-          sampling_percentage: 1
-  tail_sampling/uptrace:
-    decision_wait: 10s
-    num_traces: 10000
-    expected_new_traces_per_sec: 10
-    policies:
-      - name: errors-policy
-        type: status_code
-        status_code:
-          status_codes: [ ERROR ]
-      - name: latency-policy
-        type: latency
-        latency:
-          threshold_ms: 2000
-      - name: randomized-policy
-        type: probabilistic
-        probabilistic:
-          sampling_percentage: 1
   batch:
     send_batch_size: 10000
     timeout: 10s
@@ -61,9 +41,9 @@ service:
   pipelines:
     traces/sentry:
       receivers: [ otlp ]
-      processors: [ attributes/environment, tail_sampling/sentry, batch ]
+      processors: [ attributes/environment, tail_sampling, batch ]
       exporters: [ sentry ]
     traces/uptrace:
       receivers: [ otlp ]
-      processors: [ attributes/environment, tail_sampling/uptrace, batch ]
+      processors: [ attributes/environment, tail_sampling, batch ]
       exporters: [ otlp/uptrace ]
