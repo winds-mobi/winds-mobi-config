@@ -8,6 +8,7 @@ meteoswiss.winds.mobi,
 pioupiou.winds.mobi,
 romma.winds.mobi,
 slf.winds.mobi,
+windball.winds.mobi,
 windline.winds.mobi,
 windspots.winds.mobi {
 	root /static/* /home/winds/winds-mobi-client-js/static
