@@ -59,8 +59,8 @@ v2.winds.mobi {
 	log {
 		output file /data/var/log/v2.winds.mobi.access.log {
 			roll_size 700Mib
-		    roll_keep 30
-            roll_keep_for 30d
+			roll_keep 30
+			roll_keep_for 30d
 		}
 	}
 }
