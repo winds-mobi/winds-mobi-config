@@ -40,10 +40,9 @@ windspots.winds.mobi {
 
 	log {
 		output file /data/var/log/winds.mobi.access.log {
-			roll_size 500Mib
-			roll_uncompressed
-			roll_keep 20
-			roll_keep_for 10d
+			roll_size 700Mib
+			roll_keep 30
+			roll_keep_for 30d
 		}
 	}
 	tracing {
