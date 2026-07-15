@@ -1,78 +1,51 @@
-winds.mobi,
-aletsch.winds.mobi,
-ffvl.winds.mobi,
-holfuy.winds.mobi,
-iweathar.winds.mobi,
-metar.winds.mobi,
-meteoswiss.winds.mobi,
-pioupiou.winds.mobi,
-romma.winds.mobi,
-slf.winds.mobi,
-windball.winds.mobi,
-windline.winds.mobi,
-windspots.winds.mobi {
-	root /static/* /home/winds/winds-mobi-client-js/static
-	uri strip_prefix /static
-	rewrite /stations* /home/winds/winds-mobi-client-js/static/web/stations.html
-	file_server
+winds.mobi {
+  # API routes
+  handle_path /api/2/* {
+    reverse_proxy http://localhost:8002
+  }
+  handle_path /api/2.2/* {
+    redir * /api/2.3{uri} permanent
+  }
+  handle_path /api/2.3/* {
+    reverse_proxy http://localhost:8002
+  }
 
-	handle_path /api/2/* {
-		reverse_proxy http://localhost:8002
-	}
-	handle_path /api/2.2/* {
-		redir * /api/2.3{uri} permanent
-	}
-	handle_path /api/2.3/* {
-		reverse_proxy http://localhost:8002
-	}
+  # Backend routes
+  handle /user/* {
+    reverse_proxy http://localhost:8006
+  }
+  handle /admin/* {
+    reverse_proxy http://localhost:8006
+  }
+  handle /django-static/* {
+    reverse_proxy http://localhost:8006
+  }
 
-	handle /user/* {
-		reverse_proxy http://localhost:8006
-	}
-	handle /admin/* {
-		reverse_proxy http://localhost:8006
-	}
-	handle /django-static/* {
-		reverse_proxy http://localhost:8006
-	}
+  # Catch-all frontend (SPA) fallback
+  handle {
+    root * /home/winds/winds-mobi-client-web
+    try_files {path} {path}/ /index.html
+    file_server
+  }
 
-	redir / /stations/
-
-	log {
-		output file /data/var/log/winds.mobi.access.log {
-			roll_size 700Mib
-			roll_keep 30
-			roll_keep_for 30d
-		}
-	}
-	tracing {
-		span proxy
-	}
-}
-
-v2.winds.mobi {
-	root /home/winds/winds-mobi-client-web
-	try_files {path} {path}/ /index.html
-	file_server
-
-	log {
-		output file /data/var/log/v2.winds.mobi.access.log {
-			roll_size 700Mib
-			roll_keep 30
-			roll_keep_for 30d
-		}
-	}
+  log {
+    output file /data/var/log/winds.mobi.access.log {
+      roll_size 700MiB
+      roll_keep 30
+      roll_keep_for 30d
+    }
+  }
 }
 
 reports.winds.mobi {
-	root * /data/var/www/reports
-	file_server browse
+  root * /data/var/www/reports
+  file_server browse
 }
 
 cadvisor.winds.mobi {
-	reverse_proxy http://localhost:8011
+  reverse_proxy http://localhost:8011
 }
 
 watchtower.winds.mobi {
-	reverse_proxy http://localhost:1588
+  reverse_proxy http://localhost:1588
 }

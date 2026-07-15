@@ -31,11 +31,6 @@ exporters:
   sentry:
     dsn: ${SENTRY_URL}
     environment: ${ENVIRONMENT}
-    insecure_skip_verify: true
-  otlp/uptrace:
-    endpoint: otlp.uptrace.dev:4317
-    headers:
-      uptrace-dsn: ${UPTRACE_URL}
 
 service:
   pipelines:
@@ -43,7 +38,3 @@ service:
       receivers: [ otlp ]
       processors: [ attributes/environment, tail_sampling, batch ]
       exporters: [ sentry ]
-    traces/uptrace:
-      receivers: [ otlp ]
-      processors: [ attributes/environment, tail_sampling, batch ]
-      exporters: [ otlp/uptrace ]
