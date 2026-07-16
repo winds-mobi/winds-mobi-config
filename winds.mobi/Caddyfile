@@ -1,51 +1,72 @@
 winds.mobi {
-  # API routes
-  handle_path /api/2/* {
-    reverse_proxy http://localhost:8002
-  }
-  handle_path /api/2.2/* {
-    redir * /api/2.3{uri} permanent
-  }
-  handle_path /api/2.3/* {
-    reverse_proxy http://localhost:8002
-  }
+	# API routes
+	handle_path /api/* {
+		route {
+			handle_path /2/* {
+				reverse_proxy http://localhost:8002
+			}
+			handle_path /2.2/* {
+				redir * /api/2.3{uri} permanent
+			}
+			handle_path /2.3/* {
+				reverse_proxy http://localhost:8002
+			}
+		}
+	}
 
-  # Backend routes
-  handle /user/* {
-    reverse_proxy http://localhost:8006
-  }
-  handle /admin/* {
-    reverse_proxy http://localhost:8006
-  }
-  handle /django-static/* {
-    reverse_proxy http://localhost:8006
-  }
+	# Backend routes
+	handle /user/* {
+		reverse_proxy http://localhost:8006
+	}
+	handle /admin/* {
+		reverse_proxy http://localhost:8006
+	}
+	handle /django-static/* {
+		reverse_proxy http://localhost:8006
+	}
 
-  # Catch-all frontend (SPA) fallback
-  handle {
-    root * /home/winds/winds-mobi-client-web
-    try_files {path} {path}/ /index.html
-    file_server
-  }
+	# Catch-all frontend (SPA) fallback
+	handle {
+		root * /home/winds/winds-mobi-client-web
 
-  log {
-    output file /data/var/log/winds.mobi.access.log {
-      roll_size 700MiB
-      roll_keep 30
-      roll_keep_for 30d
-    }
-  }
+		# Avoid serving index.html (or redirecting) for missing static assets
+		@missing_assets {
+			path *.js *.css *.png *.jpg *.jpeg *.gif *.svg *.ico *.woff *.woff2 *.otf *.ttf
+			not file
+		}
+		handle @missing_assets {
+			respond 404
+		}
+
+		# Redirect any path of the spa to /
+		@should_redirect {
+			not file {path}
+			not file {path}/
+			not path /
+		}
+		redir @should_redirect / permanent
+
+		file_server
+	}
+
+	log {
+		output file /data/var/log/winds.mobi.access.log {
+			roll_size 700MiB
+			roll_keep 30
+			roll_keep_for 30d
+		}
+	}
 }
 
 reports.winds.mobi {
-  root * /data/var/www/reports
-  file_server browse
+	root * /data/var/www/reports
+	file_server browse
 }
 
 cadvisor.winds.mobi {
-  reverse_proxy http://localhost:8011
+	reverse_proxy http://localhost:8011
 }
 
 watchtower.winds.mobi {
-  reverse_proxy http://localhost:1588
+	reverse_proxy http://localhost:1588
 }
