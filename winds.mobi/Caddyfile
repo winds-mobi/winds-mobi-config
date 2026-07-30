@@ -29,23 +29,8 @@ winds.mobi {
 	handle {
 		root * /home/winds/winds-mobi-client-web
 
-		# Avoid serving index.html (or redirecting) for missing static assets
-		@missing_assets {
-			path *.js *.css *.png *.jpg *.jpeg *.gif *.svg *.ico *.woff *.woff2 *.otf *.ttf
-			not file
-		}
-		handle @missing_assets {
-			respond 404
-		}
-
-		# Redirect any path of the spa to /
-		@should_redirect {
-			not file {path}
-			not file {path}/
-			not path /
-		}
-		redir @should_redirect / permanent
-
+		# Catch-all frontend (SPA) fallback
+		try_files {path} /index.html
 		file_server
 	}
 
