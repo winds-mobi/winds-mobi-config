@@ -1,6 +1,8 @@
 winds.mobi {
 	# API routes
 	handle_path /api/* {
+		encode gzip zstd
+
 		route {
 			handle_path /2/* {
 				reverse_proxy http://localhost:8002
