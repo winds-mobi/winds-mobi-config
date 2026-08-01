@@ -33,6 +33,7 @@ winds.mobi {
 
 		# Catch-all frontend (SPA) fallback
 		try_files {path} /index.html
+		header Cache-Control no-cache
 		file_server
 	}
 
